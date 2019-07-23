@@ -1,51 +1,66 @@
 import argparse
 
-_tile_coords = [
-    [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1), (2, 2)],
-    [(0, 3), (0, 4), (0, 5), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4), (2, 5)],
-    [(0, 6), (0, 7), (0, 8), (1, 6), (1, 7), (1, 8), (2, 6), (2, 7), (2, 8)],
-    [(3, 0), (3, 1), (3, 2), (4, 0), (4, 1), (4, 2), (5, 0), (5, 1), (5, 2)],
-    [(3, 3), (3, 4), (3, 5), (4, 3), (4, 4), (4, 5), (5, 3), (5, 4), (5, 5)],
-    [(3, 6), (3, 7), (3, 8), (4, 6), (4, 7), (4, 8), (5, 6), (5, 7), (5, 8)],
-    [(6, 0), (6, 1), (6, 2), (7, 0), (7, 1), (7, 2), (8, 0), (8, 1), (8, 2)],
-    [(6, 3), (6, 4), (6, 5), (7, 3), (7, 4), (7, 5), (8, 3), (8, 4), (8, 5)],
-    [(6, 6), (6, 7), (6, 8), (7, 6), (7, 7), (7, 8), (8, 6), (8, 7), (8, 8)],
-]
+SIZE = 9
+
+sudoku = [["0" for y in range(9)] for x in range(9)]
 
 
 def parse_from_file(file_path):
-    cells = [[None for y in range(9)] for x in range(9)]
     with open(file_path, "r") as fp:
         for i, line in enumerate(fp.readlines()):
             for j, value in enumerate(line.split()):
-                if value != "x":
-                    cells[i][j] = value
-    return cells
+                if value != "0":
+                    sudoku[i][j] = value
 
 
-def get_corresponding_tile_coords(row, column):
-    result = []
-    for tile in _tile_coords:
-        if (row, column) in tile:
-            return tile
-    return None
-
-
-def sudoku_to_string(cells):
+def sudoku_to_string():
     result = ""
-    for r in cells:
-        for c in r:
-            if c != None:
-                result += " %s " % c
-            else:
-                result += " x "
+    for row in sudoku:
+        for value in row:
+            result += " %s " % value
         result += "\n"
     return result
 
 
-def solve(file_path):
-    sudoku = parse_from_file(file_path)
-    print(sudoku_to_string(sudoku))
+def check_for_valid_value(value, row, col):
+    # Check for equal value in row
+    for i in range(SIZE):
+        if sudoku[i][col] == value:
+            return False
+    # Check for equal value in col
+    for i in range(SIZE):
+        if sudoku[row][i] == value:
+            return False
+    # Check for equal value in tile
+    row_start = (row // 3) * 3
+    col_start = (col // 3) * 3
+    for i in range(row_start, row_start + 3):
+        for j in range(col_start, col_start + 3):
+            if sudoku[i][j] == value:
+                return False
+    return True
+
+
+def find_unassigned_cell():
+    for i, row in enumerate(sudoku):
+        for j, value in enumerate(row):
+            if value is "0":
+                return (i, j)
+    return None
+
+
+def solve():
+    unassigned = find_unassigned_cell()
+    if unassigned == None:
+        return True
+    row, col = unassigned
+    for i in range(1, 10):
+        if check_for_valid_value(i, row, col):
+            sudoku[row][col] = i
+            if solve():
+                return True
+            sudoku[row][col] = "0"
+    return False
 
 
 def main():
@@ -54,7 +69,12 @@ def main():
     )
     parser.add_argument("file_path", help="Path to file containing the sudoku")
     args = parser.parse_args()
-    solve(args.file_path)
+    sudoku = parse_from_file(args.file_path)
+    print(sudoku_to_string())
+    if solve():
+        print(sudoku_to_string())
+    else:
+        print("Unable to solve")
 
 
 if __name__ == "__main__":
