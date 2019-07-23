@@ -9,8 +9,7 @@ def parse_from_file(file_path):
     with open(file_path, "r") as fp:
         for i, line in enumerate(fp.readlines()):
             for j, value in enumerate(line.split()):
-                if value != "0":
-                    sudoku[i][j] = value
+                sudoku[i][j] = int(value)
 
 
 def sudoku_to_string():
@@ -44,7 +43,7 @@ def check_for_valid_value(value, row, col):
 def find_unassigned_cell():
     for i, row in enumerate(sudoku):
         for j, value in enumerate(row):
-            if value is "0":
+            if value is 0:
                 return (i, j)
     return None
 
@@ -59,7 +58,7 @@ def solve():
             sudoku[row][col] = i
             if solve():
                 return True
-            sudoku[row][col] = "0"
+            sudoku[row][col] = 0
     return False
 
 
