@@ -13,43 +13,39 @@ _tile_coords = [
 ]
 
 
-class Sudoku:
-    def __init__(self, file_path):
-        self.cells = [[None for y in range(9)] for x in range(9)]
-        with open(file_path, "r") as fp:
-            for i, line in enumerate(fp.readlines()):
-                for j, value in enumerate(line.split()):
-                    if value != "x":
-                        self.cells[i][j] = value
+def parse_from_file(file_path):
+    cells = [[None for y in range(9)] for x in range(9)]
+    with open(file_path, "r") as fp:
+        for i, line in enumerate(fp.readlines()):
+            for j, value in enumerate(line.split()):
+                if value != "x":
+                    cells[i][j] = value
+    return cells
 
-    def get_cell(self, row, column):
-        return self.cell[row][column]
 
-    def set_cell(self, row, column, value):
-        self.cells[row][column] = value
+def get_corresponding_tile_coords(row, column):
+    result = []
+    for tile in _tile_coords:
+        if (row, column) in tile:
+            return tile
+    return None
 
-    def get_corresponding_tile_coords(self, row, column):
-        result = []
-        for tile in _tile_coords:
-            if (row, column) in tile:
-                return tile
-        return None
 
-    def __str__(self):
-        result = ""
-        for r in self.cells:
-            for c in r:
-                if c != None:
-                    result += " %s " % c
-                else:
-                    result += " x "
-            result += "\n"
-        return result
+def sudoku_to_string(cells):
+    result = ""
+    for r in cells:
+        for c in r:
+            if c != None:
+                result += " %s " % c
+            else:
+                result += " x "
+        result += "\n"
+    return result
 
 
 def solve(file_path):
-    sudoku = Sudoku(file_path)
-    print(sudoku.get_corresponding_tile_coords(1, 2))
+    sudoku = parse_from_file(file_path)
+    print(sudoku_to_string(sudoku))
 
 
 def main():
