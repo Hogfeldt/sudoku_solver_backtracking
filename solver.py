@@ -2,7 +2,7 @@ import argparse
 
 SIZE = 9
 
-sudoku = [["0" for y in range(9)] for x in range(9)]
+sudoku = [[0 for y in range(9)] for x in range(9)]
 
 
 def parse_from_file(file_path):
